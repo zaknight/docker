@@ -1,0 +1,43 @@
+version: '2'
+
+services:
+    nginx:
+        image: nginx
+        ports:
+            - 80:80
+        links:
+            - phpfpm
+        volumes:
+            - ./vhosts:/etc/nginx/conf.d
+            - ./logs/nginx:/var/log/nginx
+            - ./www:/usr/share/nginx/html
+    phpfpm:
+        build: .
+        ports:
+            - 9000:9000
+        volumes:
+            - ./www:/usr/share/nginx/html
+    mysql:
+        image: mariadb
+        environment:
+            MYSQL_ROOT_PASSWORD: toor
+        ports:
+            - 3306:3306
+        volumes:
+            - ./database/mysql:/var/lib/mysql
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        restart: always
+        links:
+            - mysql
+        ports:
+            - 8888:80
+        environment:
+            PMA_HOST: mysql
+            PMA_PORT: 3306
+    mongodata:
+        image: mongo
+        ports:
+            - 27017:27017
+        volumes:
+            - ./database/mongodb:/data/db
